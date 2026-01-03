@@ -1,0 +1,64 @@
+import React from 'react';
+import { LayoutDashboard, Users, Calendar as CalendarIcon, Settings, Filter, PieChart } from 'lucide-react';
+import Avatar from '../ui/Avatar';
+
+const Sidebar = ({ activeTab, setActiveTab }) => {
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'funnel', label: 'Funil de Vendas', icon: Filter },
+    { id: 'calendar', label: 'Agenda', icon: CalendarIcon },
+    { id: 'patients', label: 'Pacientes', icon: Users },
+    { id: 'financial', label: 'Financeiro', icon: PieChart },
+  ];
+
+  return (
+    <aside className="w-20 lg:w-64 bg-[#111827] border-r border-[#334155] flex flex-col justify-between flex-shrink-0 transition-all duration-300">
+      <div>
+        <div className="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-[#334155]">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#3B82F6] to-[#06B6D4] rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">
+            C
+          </div>
+          <span className="hidden lg:block ml-3 font-bold text-lg tracking-tight">Clinica<span className="text-[#3B82F6]">Pro</span></span>
+        </div>
+
+        <nav className="p-4 space-y-2">
+          {navItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group ${
+                  isActive 
+                    ? 'bg-[#3B82F6] text-white shadow-lg shadow-blue-900/20' 
+                    : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-[#E5E7EB]'
+                }`}
+              >
+                <item.icon size={20} className={isActive ? 'text-white' : 'group-hover:text-[#3B82F6] transition-colors'} />
+                <span className="hidden lg:block font-medium text-sm">{item.label}</span>
+                {isActive && <div className="hidden lg:block ml-auto w-1.5 h-1.5 rounded-full bg-white/50" />}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="p-4 border-t border-[#334155]">
+        <button className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[#94A3B8] hover:bg-[#1E293B] hover:text-[#E5E7EB] transition-all">
+          <Settings size={20} />
+          <span className="hidden lg:block font-medium text-sm">Configurações</span>
+        </button>
+        <div className="mt-4 flex items-center gap-3 px-3 py-2 bg-[#1E293B] rounded-xl border border-[#334155]">
+          <Avatar fallback="DR" />
+          <div className="hidden lg:block overflow-hidden">
+            <p className="text-sm font-medium text-[#E5E7EB] truncate">Dr. Ricardo</p>
+            <p className="text-xs text-[#94A3B8] truncate">Administrador</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+export default Sidebar;
+
