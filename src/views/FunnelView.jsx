@@ -35,7 +35,7 @@ const FunnelView = () => {
         id: 'attendance', 
         title: 'Comparecimento', 
         color: 'border-l-[#06B6D4]', 
-        statuses: ['compareceu', 'nao_compareceu']
+        statuses: ['compareceu', 'nao_compareceu', 'waiting', 'aguardando'] // Inclui status antigos
       },
       { 
         id: 'treatment', 
