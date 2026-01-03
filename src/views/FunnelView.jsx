@@ -11,17 +11,70 @@ const FunnelView = () => {
   const [selectedLead, setSelectedLead] = useState(null);
 
   const funnelColumns = useMemo(() => {
-    const newLeads = leads.filter(lead => !lead.status || lead.status === 'new' || lead.status === 'novo');
-    const scheduled = leads.filter(lead => lead.status === 'scheduled' || lead.status === 'agendado');
-    const waiting = leads.filter(lead => lead.status === 'waiting' || lead.status === 'aguardando');
-    const closed = leads.filter(lead => lead.status === 'closed' || lead.status === 'tratamento');
-
-    return [
-      { id: 'new', title: 'Novos Leads', color: 'border-l-[#3B82F6]', items: newLeads },
-      { id: 'scheduled', title: 'Agendados', color: 'border-l-[#F59E0B]', items: scheduled },
-      { id: 'waiting', title: 'Aguardando Exame', color: 'border-l-[#06B6D4]', items: waiting },
-      { id: 'closed', title: 'Tratamento', color: 'border-l-[#22C55E]', items: closed },
+    // Estrutura de colunas com arrays de statuses
+    const columnConfig = [
+      { 
+        id: 'new', 
+        title: 'Novos Leads', 
+        color: 'border-l-[#3B82F6]', 
+        statuses: ['novo', 'new'] // Inclui null/undefined também
+      },
+      { 
+        id: 'contact', 
+        title: 'Contato / Qualificação', 
+        color: 'border-l-[#8B5CF6]', 
+        statuses: ['contato_feito', 'qualificado']
+      },
+      { 
+        id: 'scheduled', 
+        title: 'Agendados', 
+        color: 'border-l-[#F59E0B]', 
+        statuses: ['agendado', 'scheduled']
+      },
+      { 
+        id: 'attendance', 
+        title: 'Comparecimento', 
+        color: 'border-l-[#06B6D4]', 
+        statuses: ['compareceu', 'nao_compareceu']
+      },
+      { 
+        id: 'treatment', 
+        title: 'Tratamento', 
+        color: 'border-l-[#22C55E]', 
+        statuses: ['convertido', 'closed', 'tratamento']
+      },
+      { 
+        id: 'lost', 
+        title: 'Perdidos', 
+        color: 'border-l-[#EF4444]', 
+        statuses: ['perdido']
+      },
     ];
+
+    // Coletar todos os statuses mapeados
+    const allMappedStatuses = columnConfig.flatMap(col => col.statuses);
+    
+    // Filtrar leads para cada coluna
+    const columnsWithItems = columnConfig.map(col => {
+      const items = leads.filter(lead => {
+        const leadStatus = lead.status;
+        
+        // Se não tem status ou status não mapeado, vai para "Novos Leads"
+        if (!leadStatus || !allMappedStatuses.includes(leadStatus)) {
+          return col.id === 'new';
+        }
+        
+        // Verifica se o status do lead está no array de statuses da coluna
+        return col.statuses.includes(leadStatus);
+      });
+
+      return {
+        ...col,
+        items
+      };
+    });
+
+    return columnsWithItems;
   }, [leads]);
 
   const formatDate = (dateString) => {
