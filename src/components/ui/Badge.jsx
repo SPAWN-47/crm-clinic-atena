@@ -7,6 +7,9 @@ const Badge = ({ type, children }) => {
     info: "bg-[#06B6D4]/10 text-[#06B6D4] border-[#06B6D4]/20",
     error: "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20",
     neutral: "bg-[#64748B]/10 text-[#94A3B8] border-[#64748B]/20",
+    // Source badges - cores específicas
+    ia: "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20", // Verde claro
+    manual: "bg-[#60A5FA]/10 text-[#60A5FA] border-[#60A5FA]/20", // Azul claro
   };
   return (
     <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${styles[type] || styles.neutral}`}>

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Plus, MoreHorizontal, Clock, RefreshCw } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Avatar from '../components/ui/Avatar';
+import Badge from '../components/ui/Badge';
 import { useLeads } from '../hooks/useLeads';
 import LeadDetailModal from '../components/modals/LeadDetailModal';
 
@@ -29,6 +30,16 @@ const FunnelView = () => {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
 
+  const getLeadSourceLabel = (source) => {
+    return source === 'manual' ? 'MANUAL' : 'IA';
+  };
+
+  const getLeadSourceBadgeType = (source) => {
+    if (source === 'manual') return 'manual';
+    if (source === 'ia') return 'ia';
+    return 'neutral';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -45,6 +56,13 @@ const FunnelView = () => {
       </div>
     );
   }
+
+  const handleLeadUpdated = (updatedLead) => {
+    // Fecha o modal
+    setSelectedLead(null);
+    // Recarrega os leads para refletir as mudanças
+    refetch();
+  };
 
   return (
     <div className="space-y-4">
@@ -81,19 +99,24 @@ const FunnelView = () => {
                     onClick={() => setSelectedLead(lead)}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <span className="w-2 h-2 mt-1.5 rounded-full bg-[#3B82F6]"></span>
                         <span className="text-[#94A3B8] text-xs font-medium">Lead #{lead.id?.slice(0, 8) || 'N/A'}</span>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedLead(lead);
-                        }}
-                        className="text-[#64748B] hover:text-[#E5E7EB]"
-                      >
-                        <MoreHorizontal size={16} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <Badge type={getLeadSourceBadgeType(lead.source)}>
+                          <span className="text-[10px]">{getLeadSourceLabel(lead.source)}</span>
+                        </Badge>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedLead(lead);
+                          }}
+                          className="text-[#64748B] hover:text-[#E5E7EB]"
+                        >
+                          <MoreHorizontal size={16} />
+                        </button>
+                      </div>
                     </div>
                     <h4 className="text-[#E5E7EB] font-medium mb-1 group-hover:text-[#3B82F6] transition-colors">
                       {lead.name || 'Sem nome'}
@@ -130,6 +153,7 @@ const FunnelView = () => {
         <LeadDetailModal
           lead={selectedLead}
           onClose={() => setSelectedLead(null)}
+          onLeadUpdated={handleLeadUpdated}
         />
       )}
     </div>
