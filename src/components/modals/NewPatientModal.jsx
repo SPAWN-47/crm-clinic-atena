@@ -58,12 +58,12 @@ const NewPatientModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/80 backdrop-blur-sm animate-in fade-in duration-200 p-4">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-[#334155] flex justify-between items-center sticky top-0 bg-[#1E293B] z-10">
+        <div className="p-4 md:p-6 border-b border-[#334155] flex justify-between items-center sticky top-0 bg-[#1E293B] z-10">
           <div>
-            <h2 className="text-xl font-bold text-[#E5E7EB]">Novo Paciente</h2>
-            <p className="text-[#94A3B8] text-sm">Preencha os dados básicos para cadastro</p>
+            <h2 className="text-lg md:text-xl font-bold text-[#E5E7EB]">Novo Paciente</h2>
+            <p className="text-[#94A3B8] text-xs md:text-sm">Preencha os dados básicos para cadastro</p>
           </div>
           <button 
             onClick={onClose} 
@@ -75,7 +75,7 @@ const NewPatientModal = ({ onClose, onSuccess }) => {
         </div>
         
         <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-6">
+          <div className="p-4 md:p-6 space-y-4 md:space-y-6">
             {error && (
               <div className="flex items-center gap-2 p-3 bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-lg text-[#EF4444] text-sm">
                 <AlertCircle size={16} />
@@ -83,7 +83,7 @@ const NewPatientModal = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#94A3B8]">Nome Completo</label>
                 <input
@@ -107,7 +107,7 @@ const NewPatientModal = ({ onClose, onSuccess }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[#94A3B8]">Telefone / WhatsApp <span className="text-[#EF4444]">*</span></label>
                 <div className="relative">
@@ -154,12 +154,13 @@ const NewPatientModal = ({ onClose, onSuccess }) => {
             </div>
           </div>
           
-          <div className="p-6 border-t border-[#334155] bg-[#1E293B] flex justify-end gap-3 rounded-b-xl">
+          <div className="p-4 md:p-6 border-t border-[#334155] bg-[#1E293B] flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-xl">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               Cancelar
             </Button>
@@ -167,6 +168,7 @@ const NewPatientModal = ({ onClose, onSuccess }) => {
               type="submit"
               icon={CheckCircle2}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               {loading ? 'Salvando...' : 'Salvar Paciente'}
             </Button>

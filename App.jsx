@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Users, Calendar as CalendarIcon, Settings, Filter, PieChart } from 'lucide-react';
+import { AuthProvider } from './src/context/AuthContext';
+import ProtectedRoute from './src/components/auth/ProtectedRoute';
 import Sidebar from './src/components/layout/Sidebar';
 import Topbar from './src/components/layout/Topbar';
 import DashboardView from './src/views/DashboardView';
 import FunnelView from './src/views/FunnelView';
+import LoginView from './src/views/LoginView';
 import NewPatientModal from './src/components/modals/NewPatientModal';
 
-const App = () => {
+const MainApp = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showModal, setShowModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -20,13 +25,19 @@ const App = () => {
 
   return (
     <div className="flex h-screen bg-[#0F172A] font-sans selection:bg-[#3B82F6]/30 text-[#E5E7EB] overflow-hidden">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
       <main className="flex-1 flex flex-col min-w-0">
         <Topbar 
           activeTab={activeTab} 
           navItems={navItems} 
-          onNewPatient={() => setShowModal(true)} 
+          onNewPatient={() => setShowModal(true)}
+          onMenuClick={() => setSidebarOpen(true)}
         />
 
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-[#334155] scrollbar-track-transparent">
@@ -54,6 +65,26 @@ const App = () => {
         />
       )}
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginView />} />
+          <Route 
+            path="/*" 
+            element={
+              <ProtectedRoute>
+                <MainApp />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 

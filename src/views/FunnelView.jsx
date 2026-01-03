@@ -49,22 +49,24 @@ const FunnelView = () => {
   return (
     <div className="space-y-4">
       {/* Header com botão de refresh */}
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold text-[#E5E7EB] md:hidden">Funil</h2>
         <button
           onClick={refetch}
           disabled={loading}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#94A3B8] hover:text-[#E5E7EB] hover:bg-[#1E293B] rounded-lg border border-[#334155] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#94A3B8] hover:text-[#E5E7EB] hover:bg-[#1E293B] rounded-lg border border-[#334155] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
           title="Atualizar leads"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          <span>Atualizar</span>
+          <span className="hidden sm:inline">Atualizar</span>
         </button>
       </div>
 
-      <div className="h-[calc(100vh-220px)] overflow-x-auto">
-        <div className="flex gap-6 h-full min-w-[1000px] pb-4">
+      {/* Scroll horizontal em mobile, grid normal em desktop */}
+      <div className="h-[calc(100vh-220px)] overflow-x-auto overflow-y-hidden">
+        <div className="flex gap-4 md:gap-6 h-full min-w-max md:min-w-0 pb-4">
         {funnelColumns.map((col) => (
-          <div key={col.id} className="flex-1 flex flex-col min-w-[280px]">
+          <div key={col.id} className="flex-1 flex flex-col min-w-[280px] md:min-w-[250px]">
             <div className={`flex items-center justify-between mb-4 pl-3 border-l-4 ${col.color}`}>
               <h3 className="text-[#E5E7EB] font-semibold">{col.title}</h3>
               <span className="bg-[#334155] text-[#94A3B8] text-xs px-2 py-0.5 rounded-full">{col.items.length}</span>

@@ -24,13 +24,13 @@ const LeadDetailModal = ({ lead, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/80 backdrop-blur-sm animate-in fade-in duration-200 p-4">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 border-b border-[#334155] flex justify-between items-center sticky top-0 bg-[#1E293B] z-10">
+        <div className="p-4 md:p-6 border-b border-[#334155] flex justify-between items-center sticky top-0 bg-[#1E293B] z-10">
           <div>
-            <h2 className="text-xl font-bold text-[#E5E7EB]">Detalhes do Lead</h2>
-            <p className="text-[#94A3B8] text-sm">Informações e histórico</p>
+            <h2 className="text-lg md:text-xl font-bold text-[#E5E7EB]">Detalhes do Lead</h2>
+            <p className="text-[#94A3B8] text-xs md:text-sm">Informações e histórico</p>
           </div>
           <button
             onClick={onClose}
@@ -41,12 +41,12 @@ const LeadDetailModal = ({ lead, onClose }) => {
         </div>
 
         {/* Conteúdo */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
           {/* Informações Principais */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[#E5E7EB]">Informações</h3>
+            <h3 className="text-base md:text-lg font-semibold text-[#E5E7EB]">Informações</h3>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-[#94A3B8] mb-1 block">Nome</label>
                 <p className="text-[#E5E7EB]">{lead.name || 'Sem nome'}</p>
@@ -77,16 +77,16 @@ const LeadDetailModal = ({ lead, onClose }) => {
 
           {/* Timeline */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[#E5E7EB]">Timeline de Eventos</h3>
-            <div className="bg-[#0F172A] rounded-lg p-4 border border-[#334155]">
+            <h3 className="text-base md:text-lg font-semibold text-[#E5E7EB]">Timeline de Eventos</h3>
+            <div className="bg-[#0F172A] rounded-lg p-3 md:p-4 border border-[#334155]">
               <LeadTimeline leadId={lead.id} />
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-[#334155] bg-[#1E293B] flex justify-end gap-3 rounded-b-xl">
-          <Button variant="secondary" onClick={onClose}>
+        <div className="p-4 md:p-6 border-t border-[#334155] bg-[#1E293B] flex justify-end gap-3 rounded-b-xl">
+          <Button variant="secondary" onClick={onClose} className="w-full sm:w-auto">
             Fechar
           </Button>
         </div>

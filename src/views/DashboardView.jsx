@@ -67,20 +67,21 @@ const DashboardView = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header com botão de refresh */}
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center flex-wrap gap-2">
+        <h2 className="text-lg font-semibold text-[#E5E7EB] md:hidden">Métricas</h2>
         <button
           onClick={refetch}
           disabled={loading}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#94A3B8] hover:text-[#E5E7EB] hover:bg-[#1E293B] rounded-lg border border-[#334155] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#94A3B8] hover:text-[#E5E7EB] hover:bg-[#1E293B] rounded-lg border border-[#334155] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
           title="Atualizar leads"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          <span>Atualizar</span>
+          <span className="hidden sm:inline">Atualizar</span>
         </button>
       </div>
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {dashboardStats.map((stat, index) => (
           <StatCard
             key={index}
@@ -94,16 +95,16 @@ const DashboardView = () => {
       </div>
 
       {/* Charts & Lists Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Main Chart */}
-        <Card className="lg:col-span-2 p-6 min-h-[350px]">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-[#E5E7EB] font-semibold text-lg">Fluxo de Pacientes</h3>
-            <div className="flex gap-2 items-center">
+        <Card className="lg:col-span-2 p-4 md:p-6 min-h-[350px]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+            <h3 className="text-[#E5E7EB] font-semibold text-base md:text-lg">Fluxo de Pacientes</h3>
+            <div className="flex gap-2 items-center w-full sm:w-auto">
               <select 
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="bg-[#0F172A] border border-[#334155] text-[#94A3B8] text-sm rounded-lg px-3 py-1 outline-none focus:border-[#3B82F6]"
+                className="flex-1 sm:flex-none bg-[#0F172A] border border-[#334155] text-[#94A3B8] text-sm rounded-lg px-3 py-1 outline-none focus:border-[#3B82F6]"
               >
                 <option value="today">Hoje</option>
                 <option value="7d">Últimos 7 dias</option>
@@ -113,13 +114,13 @@ const DashboardView = () => {
                 <option value="180d">Últimos 6 meses</option>
                 <option value="365d">Último ano</option>
               </select>
-              <span className="text-xs text-[#64748B]">
+              <span className="text-xs text-[#64748B] whitespace-nowrap">
                 {chartData.total} leads
               </span>
             </div>
           </div>
           {/* Chart Visual */}
-          <div className="h-64 flex items-end justify-between gap-4 px-2">
+          <div className="h-48 md:h-64 flex items-end justify-between gap-2 md:gap-4 px-2 overflow-x-auto">
             {chartData.data && chartData.data.length > 0 ? (
               chartData.data.map((item, i) => (
                 <div key={i} className="w-full bg-[#334155]/30 rounded-t-lg relative group hover:bg-[#334155]/50 transition-all h-full flex items-end">
@@ -138,9 +139,9 @@ const DashboardView = () => {
             )}
           </div>
           {chartData.labels && chartData.labels.length > 0 && (
-            <div className="flex justify-between mt-4 text-xs text-[#64748B]">
+            <div className="flex justify-between mt-4 text-xs text-[#64748B] overflow-x-auto">
               {chartData.labels.map((label, i) => (
-                <span key={i}>{label}</span>
+                <span key={i} className="whitespace-nowrap">{label}</span>
               ))}
             </div>
           )}
@@ -148,8 +149,8 @@ const DashboardView = () => {
 
         {/* Recent Activity / Agenda */}
         <Card className="p-0 overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-[#334155] flex justify-between items-center">
-            <h3 className="text-[#E5E7EB] font-semibold text-lg">Próximos Agendamentos</h3>
+          <div className="p-4 md:p-6 border-b border-[#334155] flex justify-between items-center">
+            <h3 className="text-[#E5E7EB] font-semibold text-base md:text-lg">Próximos Agendamentos</h3>
             <Button variant="ghost" className="!p-1"><MoreHorizontal size={20} /></Button>
           </div>
           <div className="flex-1 overflow-y-auto max-h-[300px] p-4 space-y-3">
