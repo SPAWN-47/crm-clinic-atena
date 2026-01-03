@@ -11,61 +11,81 @@ const FunnelView = () => {
   const [selectedLead, setSelectedLead] = useState(null);
 
   const funnelColumns = useMemo(() => {
-    // Estrutura de colunas com arrays de statuses
+    // Função para normalizar status antigos para novos
+    const normalizeStatus = (status) => {
+      if (!status) return 'novo';
+      
+      // Mapeamento de status antigos para novos
+      const statusMap = {
+        'new': 'novo',
+        'scheduled': 'agendado',
+        'closed': 'convertido',
+        'tratamento': 'convertido',
+        'waiting': 'compareceu',
+        'aguardando': 'compareceu',
+      };
+      
+      return statusMap[status] || status;
+    };
+
+    // Estrutura de colunas: UMA coluna para CADA status, na ordem exata
     const columnConfig = [
       { 
-        id: 'new', 
-        title: 'Novos Leads', 
-        color: 'border-l-[#3B82F6]', 
-        statuses: ['novo', 'new'] // Inclui null/undefined também
+        id: 'novo', 
+        status: 'novo',
+        title: 'Novo', 
+        color: 'border-l-[#3B82F6]'
       },
       { 
-        id: 'contact', 
-        title: 'Contato / Qualificação', 
-        color: 'border-l-[#8B5CF6]', 
-        statuses: ['contato_feito', 'qualificado']
+        id: 'contato_feito', 
+        status: 'contato_feito',
+        title: 'Contato Feito', 
+        color: 'border-l-[#8B5CF6]'
       },
       { 
-        id: 'scheduled', 
-        title: 'Agendados', 
-        color: 'border-l-[#F59E0B]', 
-        statuses: ['agendado', 'scheduled']
+        id: 'qualificado', 
+        status: 'qualificado',
+        title: 'Qualificado', 
+        color: 'border-l-[#A855F7]'
       },
       { 
-        id: 'attendance', 
-        title: 'Comparecimento', 
-        color: 'border-l-[#06B6D4]', 
-        statuses: ['compareceu', 'nao_compareceu', 'waiting', 'aguardando'] // Inclui status antigos
+        id: 'agendado', 
+        status: 'agendado',
+        title: 'Agendado', 
+        color: 'border-l-[#F59E0B]'
       },
       { 
-        id: 'treatment', 
-        title: 'Tratamento', 
-        color: 'border-l-[#22C55E]', 
-        statuses: ['convertido', 'closed', 'tratamento']
+        id: 'compareceu', 
+        status: 'compareceu',
+        title: 'Compareceu', 
+        color: 'border-l-[#06B6D4]'
       },
       { 
-        id: 'lost', 
-        title: 'Perdidos', 
-        color: 'border-l-[#EF4444]', 
-        statuses: ['perdido']
+        id: 'nao_compareceu', 
+        status: 'nao_compareceu',
+        title: 'Não Compareceu', 
+        color: 'border-l-[#F97316]'
+      },
+      { 
+        id: 'convertido', 
+        status: 'convertido',
+        title: 'Convertido', 
+        color: 'border-l-[#22C55E]'
+      },
+      { 
+        id: 'perdido', 
+        status: 'perdido',
+        title: 'Perdido', 
+        color: 'border-l-[#EF4444]'
       },
     ];
-
-    // Coletar todos os statuses mapeados
-    const allMappedStatuses = columnConfig.flatMap(col => col.statuses);
     
     // Filtrar leads para cada coluna
     const columnsWithItems = columnConfig.map(col => {
       const items = leads.filter(lead => {
-        const leadStatus = lead.status;
-        
-        // Se não tem status ou status não mapeado, vai para "Novos Leads"
-        if (!leadStatus || !allMappedStatuses.includes(leadStatus)) {
-          return col.id === 'new';
-        }
-        
-        // Verifica se o status do lead está no array de statuses da coluna
-        return col.statuses.includes(leadStatus);
+        const leadStatus = normalizeStatus(lead.status);
+        // Cada coluna filtra apenas seu status específico
+        return leadStatus === col.status;
       });
 
       return {
