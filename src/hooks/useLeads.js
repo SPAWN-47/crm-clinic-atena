@@ -17,7 +17,7 @@ export const useLeads = () => {
 
       const { data, error: queryError } = await supabase
         .from('leads')
-        .select('*')
+        .select('id, name, phone, email, status, source, created_at, updated_at')
         .order('created_at', { ascending: false });
 
       if (queryError) {

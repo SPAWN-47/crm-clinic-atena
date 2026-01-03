@@ -52,10 +52,10 @@ const DashboardView = () => {
     }).length;
 
     return [
-      { title: "Leads Novos", value: newLeads.toString(), icon: UserPlus, color: "text-[#3B82F6]" },
-      { title: "Em Andamento", value: inProgressLeads.toString(), icon: TrendingUp, color: "text-[#F59E0B]" },
-      { title: "Convertidos", value: convertedLeads.toString(), icon: CheckCircle, color: "text-[#22C55E]" },
-      { title: "Perdidos", value: lostLeads.toString(), icon: XCircle, color: "text-[#EF4444]" },
+      { title: "Leads Novos", value: newLeads.toString(), icon: UserPlus, colorTheme: "blue" },
+      { title: "Em Andamento", value: inProgressLeads.toString(), icon: TrendingUp, colorTheme: "purple" },
+      { title: "Convertidos", value: convertedLeads.toString(), icon: CheckCircle, colorTheme: "green" },
+      { title: "Perdidos", value: lostLeads.toString(), icon: XCircle, colorTheme: "red" },
     ];
   }, [leads]);
 
@@ -142,14 +142,17 @@ const DashboardView = () => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Header com botão de refresh */}
-      <div className="flex justify-between items-center flex-wrap gap-2">
-        <h2 className="text-lg font-semibold text-[#E5E7EB] md:hidden">Métricas</h2>
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500 pb-8">
+      {/* Header do Dashboard */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold text-[#E5E7EB] mb-1">Dashboard</h2>
+          <p className="text-sm text-[#64748B] hidden md:block">Visão geral das métricas e performance</p>
+        </div>
         <button
           onClick={refetch}
           disabled={loading}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#94A3B8] hover:text-[#E5E7EB] hover:bg-[#1E293B] rounded-lg border border-[#334155] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#E5E7EB] bg-[#1E293B] hover:bg-[#334155] rounded-lg border border-[#334155] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           title="Atualizar leads"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -157,8 +160,8 @@ const DashboardView = () => {
         </button>
       </div>
 
-      {/* KPI Grid - Métricas Operacionais */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      {/* KPI Grid - Métricas Operacionais - Mobile menor / Desktop destaque */}
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
         {dashboardStats.map((stat, index) => (
           <StatCard
             key={index}
@@ -167,58 +170,107 @@ const DashboardView = () => {
             trend=""
             icon={stat.icon}
             trendUp={true}
+            colorTheme={stat.colorTheme}
           />
         ))}
       </div>
 
-      {/* Gráfico de Distribuição do Funil */}
-      <Card className="p-4 md:p-6 min-h-[350px]">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+      {/* Gráfico de Distribuição do Funil - Mobile Vertical / Desktop Horizontal */}
+      <Card className="p-4 md:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-3 md:gap-4">
           <div>
-            <h3 className="text-[#E5E7EB] font-semibold text-base md:text-lg">Distribuição do Funil</h3>
-            <p className="text-[#94A3B8] text-xs mt-1">Status atual dos leads</p>
+            <h3 className="text-[#E5E7EB] font-semibold text-base md:text-lg lg:text-xl mb-1">Distribuição do Funil</h3>
+            <p className="text-[#64748B] text-xs md:text-sm">Status atual dos leads</p>
           </div>
-          <span className="text-xs text-[#64748B] whitespace-nowrap bg-[#1E293B] px-3 py-1 rounded-lg border border-[#334155]">
+          <span className="text-xs md:text-sm text-[#94A3B8] whitespace-nowrap bg-[#0F172A] px-3 md:px-4 py-1.5 md:py-2 rounded-lg border border-[#334155]">
             {funnelDistribution.total} leads total
           </span>
         </div>
         
-        {/* Chart Visual */}
-        <div className="h-48 md:h-64 flex items-end justify-between gap-1 md:gap-2 px-2 overflow-x-auto">
+        {/* Mobile: Gráfico Vertical */}
+        <div className="md:hidden space-y-2">
           {funnelDistribution.data && funnelDistribution.data.length > 0 ? (
-            funnelDistribution.data.map((item, i) => (
-              <div 
-                key={i} 
-                className="flex-1 min-w-[60px] md:min-w-[80px] bg-[#334155]/30 rounded-t-lg relative group hover:bg-[#334155]/50 transition-all h-full flex items-end"
-              >
-                <div 
-                  style={{ height: `${item.height}%` }} 
-                  className={`w-full bg-gradient-to-t ${item.color} opacity-80 group-hover:opacity-100 rounded-t-sm transition-all relative`}
-                >
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#0F172A] border border-[#334155] text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-lg">
-                    <div className="font-medium">{item.count} leads</div>
-                    <div className="text-[#94A3B8] text-[10px]">{item.label}</div>
+            funnelDistribution.data.map((item, i) => {
+              const hasValue = item.count > 0;
+              const minHeight = hasValue ? Math.max(item.height, 5) : 0;
+              
+              return (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="flex-1 min-w-[80px]">
+                    <span className="text-xs text-[#94A3B8] font-medium block mb-1.5 truncate" title={item.label}>
+                      {item.label}
+                    </span>
+                    <div className="relative w-full h-6 bg-[#334155]/20 rounded-md overflow-hidden">
+                      {hasValue && (
+                        <div 
+                          style={{ width: `${minHeight}%` }} 
+                          className={`h-full bg-gradient-to-r ${item.color} rounded-md transition-all relative min-w-[4px] flex items-center justify-end pr-2`}
+                        >
+                          <span className="text-[10px] font-semibold text-white">
+                            {item.count}
+                          </span>
+                        </div>
+                      )}
+                      {!hasValue && (
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] text-[#475569] opacity-50">
+                          0
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
+          ) : (
+            <div className="w-full py-8 flex items-center justify-center text-[#64748B] text-sm">
+              Sem dados
+            </div>
+          )}
+        </div>
+
+        {/* Desktop: Gráfico Horizontal */}
+        <div className="hidden md:flex items-end justify-between gap-2 lg:gap-3 px-1 h-40 lg:h-48">
+          {funnelDistribution.data && funnelDistribution.data.length > 0 ? (
+            funnelDistribution.data.map((item, i) => {
+              const hasValue = item.count > 0;
+              const minHeight = hasValue ? Math.max(item.height, 8) : 0;
+              
+              return (
+                <div 
+                  key={i} 
+                  className="flex-1 min-w-[50px] lg:min-w-[70px] flex flex-col items-center justify-end gap-2 h-full"
+                >
+                  {hasValue ? (
+                    <>
+                      <div className="w-full relative group">
+                        <div 
+                          style={{ height: `${minHeight}%` }} 
+                          className={`w-full bg-gradient-to-t ${item.color} rounded-t-md transition-all relative min-h-[4px]`}
+                        >
+                          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#0F172A] border border-[#334155] text-xs text-[#E5E7EB] px-2.5 py-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl pointer-events-none">
+                            <div className="font-semibold">{item.count} leads</div>
+                            <div className="text-[#94A3B8] text-[10px] mt-0.5">{item.label}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] lg:text-xs text-[#64748B] text-center leading-tight px-1" title={item.label}>
+                        {item.label}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-[10px] lg:text-xs text-[#475569] text-center leading-tight px-1 opacity-50" title={item.label}>
+                      {item.label}
+                    </span>
+                  )}
+                </div>
+              );
+            })
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#64748B] text-sm">
               Sem dados
             </div>
           )}
         </div>
-        
-        {/* Labels */}
-        {funnelDistribution.data && funnelDistribution.data.length > 0 && (
-          <div className="flex justify-between mt-4 text-xs text-[#64748B] overflow-x-auto gap-1">
-            {funnelDistribution.data.map((item, i) => (
-              <span key={i} className="flex-1 text-center whitespace-nowrap truncate" title={item.label}>
-                {item.label}
-              </span>
-            ))}
-          </div>
-        )}
       </Card>
     </div>
   );

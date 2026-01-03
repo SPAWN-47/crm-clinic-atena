@@ -7,7 +7,7 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, content-type, x-crm-api-key',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, PATCH, OPTIONS',
   'Content-Type': 'application/json',
 }
 
@@ -38,7 +38,7 @@ serve(async (req) => {
     const url = new URL(req.url);
     const pathname = url.pathname;
 
-    // Only handle POST /api/leads
+    // Handle POST /api/leads (create/upsert by phone)
     if (req.method === "POST" && pathname.endsWith("/api/leads")) {
       try {
         const body = await req.json()
@@ -66,11 +66,15 @@ serve(async (req) => {
 
         // Garantir status default - nunca permitir null
         const leadStatus = status ?? 'novo'
+        
+        // Garantir source default - ia, n8n, ou manual
+        const leadSource = source === 'ia' || source === 'n8n' || source === 'manual' ? source : 'n8n'
 
         const leadData = {
           phone,
           name: name || null,
           status: leadStatus,
+          source: leadSource,
           updated_at: new Date().toISOString(),
         }
 
@@ -115,7 +119,6 @@ serve(async (req) => {
         }
 
         // Register event: lead_created or lead_updated
-        const eventSource = source === 'ia' || source === 'n8n' || source === 'manual' ? source : 'n8n'
         const eventType = isNewLead ? 'lead_created' : 'lead_updated'
         
         const previousStatus = existingLead?.status || null
@@ -133,7 +136,7 @@ serve(async (req) => {
             lead_id: leadId,
             type: eventType,
             payload: eventPayload,
-            source: eventSource,
+            source: leadSource,
             created_at: new Date().toISOString()
           })
 
@@ -145,6 +148,122 @@ serve(async (req) => {
         return new Response(
           JSON.stringify(result),
           { status: existingLead ? 200 : 201, headers: corsHeaders }
+        )
+      } catch (error) {
+        return new Response(
+          JSON.stringify({ error: error.message || 'Internal server error' }),
+          { status: 500, headers: corsHeaders }
+        )
+      }
+    }
+
+    // Handle PATCH /api/leads/:id (update by ID)
+    if (req.method === "PATCH" && pathname.match(/\/api\/leads\/[^/]+$/)) {
+      try {
+        const leadId = pathname.split('/').pop()
+        const body = await req.json()
+        const { name, phone, email, status } = body
+
+        // Get existing lead first to track changes
+        const { data: existingLead, error: findError } = await supabase
+          .from('leads')
+          .select('*')
+          .eq('id', leadId)
+          .single()
+
+        if (findError || !existingLead) {
+          return new Response(
+            JSON.stringify({ error: 'Lead not found' }),
+            { status: 404, headers: corsHeaders }
+          )
+        }
+
+        // Build update data with only provided fields
+        const updateData = {
+          updated_at: new Date().toISOString(),
+        }
+
+        // Track what changed for the event payload
+        const changes = {}
+
+        if (name !== undefined && name !== existingLead.name) {
+          updateData.name = name || null
+          changes.name = { from: existingLead.name, to: name || null }
+        }
+
+        if (phone !== undefined && phone !== existingLead.phone) {
+          updateData.phone = phone
+          changes.phone = { from: existingLead.phone, to: phone }
+        }
+
+        if (email !== undefined && email !== existingLead.email) {
+          updateData.email = email || null
+          changes.email = { from: existingLead.email, to: email || null }
+        }
+
+        if (status !== undefined && status !== existingLead.status) {
+          updateData.status = status ?? 'novo'
+          changes.status = { from: existingLead.status, to: status ?? 'novo' }
+        }
+
+        // Only update if there are actual changes
+        if (Object.keys(changes).length === 0) {
+          return new Response(
+            JSON.stringify(existingLead),
+            { status: 200, headers: corsHeaders }
+          )
+        }
+
+        // Update the lead
+        const { data: updatedLead, error: updateError } = await supabase
+          .from('leads')
+          .update(updateData)
+          .eq('id', leadId)
+          .select()
+          .single()
+
+        if (updateError) {
+          return new Response(
+            JSON.stringify({ error: updateError.message }),
+            { status: 500, headers: corsHeaders }
+          )
+        }
+
+        // Register lead_updated event
+        const eventPayload = {
+          changes,
+          previous: {
+            name: existingLead.name,
+            phone: existingLead.phone,
+            email: existingLead.email,
+            status: existingLead.status,
+          },
+          current: {
+            name: updatedLead.name,
+            phone: updatedLead.phone,
+            email: updatedLead.email,
+            status: updatedLead.status,
+          }
+        }
+
+        const { error: eventError } = await supabase
+          .from('lead_events')
+          .insert({
+            lead_id: leadId,
+            type: 'lead_updated',
+            payload: eventPayload,
+            source: 'manual',
+            created_at: new Date().toISOString()
+          })
+
+        // Log event error but don't fail the request
+        if (eventError) {
+          console.error('Failed to register event:', eventError)
+        }
+
+        return new Response(
+          JSON.stringify(updatedLead),
+          { status: 200, headers: corsHeaders }
         )
       } catch (error) {
         return new Response(
