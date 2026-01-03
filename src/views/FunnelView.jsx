@@ -104,7 +104,10 @@ const FunnelView = () => {
   };
 
   const getLeadSourceLabel = (source) => {
-    return source === 'manual' ? 'MANUAL' : 'IA';
+    if (source === 'manual') return 'MANUAL';
+    if (source === 'ia') return 'IA';
+    // Para outros sources, retorna o source em uppercase ou 'OUTRO'
+    return source ? source.toUpperCase() : 'OUTRO';
   };
 
   const getLeadSourceBadgeType = (source) => {
