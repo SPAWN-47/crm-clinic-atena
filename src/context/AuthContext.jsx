@@ -18,20 +18,56 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Recuperar sessão inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Erro ao recuperar sessão:', error);
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        
+        const session = data?.session ?? null;
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Erro inesperado ao recuperar sessão:', error);
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+      });
 
     // Listener para mudanças de autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    let subscription = null;
+    try {
+      const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        try {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        } catch (error) {
+          console.error('Erro ao processar mudança de autenticação:', error);
+          setLoading(false);
+        }
+      });
+      subscription = authSubscription;
+    } catch (error) {
+      console.error('Erro ao configurar listener de autenticação:', error);
       setLoading(false);
-    });
+    }
 
-    return () => subscription.unsubscribe();
+    return () => {
+      if (subscription) {
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Erro ao desinscrever listener de autenticação:', error);
+        }
+      }
+    };
   }, []);
 
   const signUp = async (email, password) => {
